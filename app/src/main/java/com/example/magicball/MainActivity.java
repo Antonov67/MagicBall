@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     lastShakeTime = currentTime;
 
                     startVibration();
+                    startAnimation();
 
                     // Запускаем в UI потоке
                     runOnUiThread(new Runnable() {
