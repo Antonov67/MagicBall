@@ -1,5 +1,6 @@
 package com.example.magicball;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,6 +12,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -25,6 +27,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private Button askButton;
+    private ImageView ballImageView;
     private String[] answers;
     private Random random = new Random();
 
@@ -71,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         };
 
         askButton = findViewById(R.id.askButton);
+        ballImageView = findViewById(R.id.imageView);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 showMagicAnswer();
                 startVibration();
+                startAnimation();
             }
         });
 
@@ -102,6 +107,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    private void startAnimation() {
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(ballImageView, "rotation", 0f, 360f);
+        rotation.setDuration(800);
+        rotation.setRepeatCount(2);
+        rotation.start();
     }
 
 
