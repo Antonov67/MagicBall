@@ -10,7 +10,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -143,6 +146,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //Показываем диалог
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+
+        // Настраиваем позицию
+        Window window = alertDialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams params = window.getAttributes();
+            // Привязываем окно диалога к нижнему краю
+            params.gravity = Gravity.BOTTOM;
+            // Если нужно сделать отступ от низа (например, 50 пикселей), используем params.y
+            // params.y = -50; // отрицательное значение поднимет диалог выше от низа
+            // params.y = 50;  // положительное значение опустит ниже (если сочетается с TOP)
+            window.setAttributes(params);
+        }
 
         try {
 //            // меняем цвет заголовка
