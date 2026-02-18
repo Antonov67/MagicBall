@@ -5,10 +5,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -71,6 +74,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        if (!vibrator.hasVibrator()) {
+            Toast.makeText(this, "Вибромотора нет", Toast.LENGTH_SHORT).show();
+        }
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View view) {
                 showMagicAnswer();
+                startVibration();
             }
         });
 
@@ -114,27 +122,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Ответ магического шара")
                 .setMessage(answer)
-                .setPositiveButton("Спросить снова", (dialog, which) ->
-                {
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Закрыть", (dialog, which) ->
+                .setPositiveButton("Закрыть", (dialog, which) ->
                 {
                     dialog.dismiss();
                 });
+
 
         //Показываем диалог
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
         try {
-            // меняем цвет заголовка
-            int titleId = getResources().getIdentifier("alertTitle", "id", "android");
-            if (titleId > 0) {
-                android.widget.TextView titleTextView = alertDialog.findViewById(titleId);
-                if (titleTextView != null) {
-                    titleTextView.setTextColor(getResources().getColor(titleColor));
-                }
+//            // меняем цвет заголовка
+//            int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+//            if (titleId > 0) {
+//                TextView titleTextView = alertDialog.findViewById(titleId);
+//                if (titleTextView != null) {
+//                    titleTextView.setTextColor(titleColor);
+//                }
+//            }
+
+            Button posButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (posButton != null) {
+                posButton.setBackgroundColor(getColor(titleColor));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -167,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (speed > SHAKE_THRESHOLD && (currentTime - lastShakeTime) > SHAKE_TIMEOUT) {
                     lastShakeTime = currentTime;
 
+                    startVibration();
+
                     // Запускаем в UI потоке
                     runOnUiThread(new Runnable() {
                         @Override
@@ -182,6 +194,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 lastZ = z;
             }
         }
+    }
+
+    private void startVibration() {
+        if (vibrator == null || !vibrator.hasVibrator()) return;
+
+        int duration = 500; // полсекунды
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            VibrationEffect effect = VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE);
+            vibrator.vibrate(effect);
+        } else {
+            vibrator.vibrate(duration);
+        }
+
     }
 
     @Override
